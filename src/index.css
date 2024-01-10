@@ -11,3 +11,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.copter-grid {
+	background-image: linear-gradient(
+			rgba(71, 85, 105, 0.3) 0.05em,
+			transparent 0.1em
+		),
+		linear-gradient(90deg, rgba(71, 85, 105, 0.3) 0.05em, transparent 0.1em);
+	background-size: 2em 2em;
+}

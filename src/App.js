@@ -1,25 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import Copter from './components/canvas'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const styles = {
+    app: {
+        height: '100vh',
+        width: '100vw',
+        backgroundColor: 'rgb(241 245 249)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+
+        flexDirection: 'column',
+    },
+    header: {
+        fontSize: '2.5rem',
+        fontWeight: 'bold',
+        color: '#000000',
+    },
 }
 
-export default App;
+function App() {
+    return (
+        <main className='App' style={styles.app}>
+            <h1 style={styles.header}>Canvas chart..</h1>
+            <Copter />
+        </main>
+    )
+}
+
+export default App
