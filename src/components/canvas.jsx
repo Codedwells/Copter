@@ -21,6 +21,9 @@ function Copter() {
     const canvasObj = new Canvas(canvas)
     setCanvasInstance(canvasObj)
 
+    canvasObj.handleResize()
+    canvasObj.drawGraph()
+
     // Cleanup on component unmount
     return () => {
       canvasObj.clearCanvas()
@@ -32,7 +35,7 @@ function Copter() {
     if (canvasInstance) {
       canvasInstance.handleResize()
       // canvasInstance.drawCircle(50, 'green') // Redraw the circle after resize
-      canvasInstance.drawAxis()
+      canvasInstance.drawGraph()
     }
   }
 
@@ -43,11 +46,16 @@ function Copter() {
     return () => {
       window.removeEventListener('resize', handleResize)
     }
-  }, [canvasInstance])
+  }, [])
 
   return (
     <div>
-      <canvas ref={canvasRef} id='canvas' className='copter-grid' style={style.canvas}></canvas>
+      <canvas
+        ref={canvasRef}
+        id='canvas'
+        className='copter-gri'
+        style={style.canvas}
+      ></canvas>
     </div>
   )
 }
@@ -64,54 +72,43 @@ class Canvas {
       x: this.width / 2,
       y: this.height / 2,
     }
+    this.animationProgress = 0
+    this.animationSpeed = 0.001
+  }
+
+  drawGraph() {
+    this.clearCanvas()
+    // Draw x and y axis
+    this.drawAxis()
+    // Draw x and y axis scale
+    this.drawXScale()
+    this.drawYScale()
+
+    // Draw x and y axis labels
+    // this.drawXLabel()
+    // this.drawYLabel()
+
+    // Draw bezier curve
+    this.drawAnimatedBezierCurve()
   }
 
   // Draw x and y axix
   drawAxis() {
     //Draw x axis
     this.ctx.beginPath()
-    this.ctx.moveTo(this.width * 0.02, this.height * 0.94)
+    this.ctx.moveTo(this.width * 0.04, this.height * 0.94)
     this.ctx.lineTo(this.width * 0.98, this.height * 0.94)
-    this.ctx.strokeStyle = 'red'
+    this.ctx.strokeStyle = 'gray'
     this.ctx.lineWidth = 5
     this.ctx.stroke()
 
     // Draw y axis
     this.ctx.beginPath()
     this.ctx.moveTo(this.width * 0.04, this.height * 0.02)
-    this.ctx.lineTo(this.width * 0.04, this.height * 0.98)
-    this.ctx.strokeStyle = 'blue'
+    this.ctx.lineTo(this.width * 0.04, this.height * 0.94)
+    this.ctx.strokeStyle = 'gray'
     this.ctx.lineWidth = 4
     this.ctx.stroke()
-
-    // Draw x axis arrow
-    this.ctx.beginPath()
-    this.ctx.moveTo(this.width * 0.98, this.height * 0.94)
-    this.ctx.lineTo(this.width * 0.95, this.height * 0.91)
-    this.ctx.lineTo(this.width * 0.95, this.height * 0.97)
-    this.ctx.closePath()
-    this.ctx.fillStyle = 'red'
-    this.ctx.fill()
-
-    // Draw y axis arrow
-    this.ctx.beginPath()
-    this.ctx.moveTo(this.width * 0.04, this.height * 0)
-    this.ctx.lineTo(this.width * 0.025, this.height * 0.05)
-    this.ctx.lineTo(this.width * 0.055, this.height * 0.05)
-    this.ctx.closePath()
-    this.ctx.fillStyle = 'blue'
-    this.ctx.fill()
-
-    // Draw x and y axis scale
-    this.drawXScale()
-    this.drawYScale()
-
-    // Draw x and y axis labels
-    this.drawXLabel()
-    this.drawYLabel()
-
-    // Draw bezier curve
-    this.drawBezierCurve()
   }
 
   // Draw x axis scale
@@ -119,7 +116,7 @@ class Canvas {
     this.ctx.beginPath()
     this.ctx.moveTo(this.width * 0.1, this.height * 0.94)
     this.ctx.lineTo(this.width * 0.1, this.height * 0.96)
-    this.ctx.strokeStyle = 'red'
+    this.ctx.strokeStyle = 'gray'
     this.ctx.lineWidth = 5
     this.ctx.stroke()
   }
@@ -129,7 +126,7 @@ class Canvas {
     this.ctx.beginPath()
     this.ctx.moveTo(this.width * 0.025, this.height * 0.8)
     this.ctx.lineTo(this.width * 0.04, this.height * 0.8)
-    this.ctx.strokeStyle = 'blue'
+    this.ctx.strokeStyle = 'gray'
     this.ctx.lineWidth = 5
     this.ctx.stroke()
   }
@@ -152,8 +149,57 @@ class Canvas {
   drawBezierCurve() {
     this.ctx.beginPath()
     this.ctx.moveTo(this.width, this.height * 0.3)
-    this.ctx.quadraticCurveTo(this.width*0.6, this.height*0.9, this.width * 0.04, this.height * 0.94)
+    this.ctx.quadraticCurveTo(
+      this.width * 0.6,
+      this.height * 0.9,
+      this.width * 0.04,
+      this.height * 0.94,
+    )
+    this.ctx.strokeStyle = 'green'
     this.ctx.stroke()
+  }
+
+  // Draw animated bezier curve
+  drawAnimatedBezierCurve() {
+    // Update the animation progress
+    this.animationProgress += this.animationSpeed
+
+    // Ensure the animation progress stays within bounds (0 to 1)
+    this.animationProgress = Math.min(1, Math.max(0, this.animationProgress))
+
+    // Calculate the current positon based on animation progress
+    const currentX = this.width * this.animationProgress
+    const currentY = this.height * this.animationProgress
+
+    // Draw the animated bezier curve
+    const endX = this.width * (this.animationProgress + 0.0001)
+    const endY = this.height * (0.3 / (this.animationProgress + 0.0001))
+    //const controlX = this.width * 0.6 * this.animationProgress // Adjust the control point
+    //const controlY = this.height * 0.9 * this.animationProgress
+    const controlX = endX * 0.6
+    const controlY = this.height * 0.9
+    const startX = this.width * 0.04
+    const startY = this.height * 0.94
+    console.log('endX', endX)
+    console.log('endY', endY)
+
+    // Draw the gradient
+    const gradient = this.ctx.createLinearGradient(0, this.height, 0, 0)
+    gradient.addColorStop(0, 'rgba(0, 255, 0, 0)') // Transparent at the bottom
+    gradient.addColorStop(1, 'rgba(0, 255, 0, 1)') // Fully visible at the top
+    this.ctx.fillStyle = gradient
+      this.ctx.fill()
+
+    this.ctx.beginPath()
+    this.ctx.moveTo(endX, endY)
+    this.ctx.quadraticCurveTo(controlX, controlY, startX, startY)
+    this.ctx.strokeStyle = 'green'
+    this.ctx.stroke()
+
+    if (this.animationProgress < 1) {
+      console.log(this.animationProgress)
+      requestAnimationFrame(() => this.drawGraph())
+    }
   }
 
   // Draw a circle
