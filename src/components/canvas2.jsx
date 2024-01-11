@@ -47,7 +47,7 @@ function Graph() {
 
     //  Params         ctx, (start),(control), (end pnt) , duration
     //  Params         ctx, x0,|y0| , x1 , y1 , x2 ,|y2|, duration
-    animatePathDrawing(ctx, 39, 600, 600, 600, 800, 60, 20000)
+    animatePathDrawing(ctx, 39, 600, 600, 600, 800, 60, 10000)
   }
 
   // Clears the drawn line
@@ -97,6 +97,7 @@ function Graph() {
       // Clear canvas
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
       drawAxis(ctx, ctx.canvas.width, ctx.canvas.height)
+      drawScales(ctx, ctx.canvas.width, ctx.canvas.height, progress)
 
       // Draw curve
       drawBezierSplit(ctx, x0, y0, x1, y1, x2, y2, 0, progress)
@@ -211,4 +212,56 @@ function drawAxis(ctx, width, height) {
   ctx.strokeStyle = 'gray'
   ctx.lineWidth = 4
   ctx.stroke()
+}
+
+function drawScales(ctx, width, height, progress) {
+  for (let i = 0; i < 10; i++) {
+    drawXscale(
+      ctx,
+      i + 1,
+      width * 0.1 + ((width * 0.9) / 10) * i,
+      height * 0.94,
+      width * 0.1 + ((width * 0.9) / 10) * i,
+      height * 0.96,
+    )
+    // Draw y axis scale
+    drawYscale(
+      ctx,
+      i + 1,
+      width * 0.025,
+      height * 0.85 - ((height * 0.9) / 10) * i,
+      width * 0.04,
+      height * 0.85 - ((height * 0.9) / 10) * i,
+    )
+  }
+}
+
+function drawXscale(ctx, label, xStart, yStart, xEnd, yEnd) {
+  ctx.beginPath()
+  ctx.moveTo(xStart, yStart)
+  ctx.lineTo(xEnd, yEnd)
+  ctx.strokeStyle = 'gray'
+  ctx.lineWidth = 5
+  ctx.stroke()
+
+  ctx.font = '20px Arial'
+  ctx.fillStyle = 'black'
+
+  //Uncomment to get scale label
+  //ctx.fillText(label, xStart - 5, yStart + 30)
+}
+
+function drawYscale(ctx, label, xStart, yStart, xEnd, yEnd) {
+  ctx.beginPath()
+  ctx.moveTo(xStart, yStart)
+  ctx.lineTo(xEnd, yEnd)
+  ctx.strokeStyle = 'gray'
+  ctx.lineWidth = 5
+  ctx.stroke()
+
+  ctx.font = '20px Arial'
+  ctx.fillStyle = 'black'
+
+  //Uncomment to get scale label
+  //ctx.fillText(label, xStart - 20, yStart + 5)
 }
