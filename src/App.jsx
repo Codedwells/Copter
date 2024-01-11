@@ -1,34 +1,34 @@
 import { useState } from 'react'
 import Copter from './components/canvas'
+import Graph from './components/canvas2'
 
 const styles = {
-    app: {
-        height: '100vh',
-        width: '100vw',
-        backgroundColor: 'rgb(241 245 249)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+  app: {
+    height: '100vh',
+    width: '100vw',
+    backgroundColor: 'rgb(241 245 249)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
 
-        flexDirection: 'column',
-    },
-    header: {
-        fontSize: '2.5rem',
-        fontWeight: 'bold',
-        color: '#000000',
-    },
+    flexDirection: 'column',
+  },
+  header: {
+    fontSize: '2.5rem',
+    fontWeight: 'bold',
+    color: '#000000',
+  },
 }
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
-  
-      <main className='App' style={styles.app}>
-            <h1 style={styles.header}>Canvas chart..</h1>
-            <Copter />
-        </main>
-  
+    <main className='App' style={styles.app}>
+      <h1 style={styles.header}>Canvas chart..</h1>
+      {false && <Copter />}
+      {true && <Graph />}
+    </main>
   )
 }
 
