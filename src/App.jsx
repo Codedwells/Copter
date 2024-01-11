@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Copter from './components/canvas'
 
 const styles = {
@@ -19,12 +20,16 @@ const styles = {
 }
 
 function App() {
-    return (
-        <main className='App' style={styles.app}>
+  const [count, setCount] = useState(0)
+
+  return (
+  
+      <main className='App' style={styles.app}>
             <h1 style={styles.header}>Canvas chart..</h1>
             <Copter />
         </main>
-    )
+  
+  )
 }
 
 export default App
