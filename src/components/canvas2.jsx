@@ -4,8 +4,8 @@ const style = {
   canvas: {
     width: '80vw',
     height: '60vh',
-    borderRadius: '8px',
-    boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.2)',
+   // borderRadius: '8px',
+    //boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.2)',
   },
   container: {
     display: 'flex',
@@ -28,6 +28,10 @@ const style = {
   },
 }
 
+// Store all coordinates and label of x and y axis scales
+let yScales = []
+let xScales = []
+
 const requestAnimationFrame =
   window.requestAnimationFrame ||
   window.mozRequestAnimationFrame ||
@@ -48,13 +52,27 @@ function Graph() {
     //  Params         ctx, (start),(control), (end pnt) , duration
     //  Params         ctx, x0,|y0| , x1 , y1 , x2 ,|y2|, duration
     animatePathDrawing(ctx, 39, 600, 600, 600, 800, 60, 10000)
+
+    // Reset scales
+    xScales = []
+    yScales = []
+
+    // Clear canvas and draw axis
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    drawAxis(ctx, ctx.canvas.width, ctx.canvas.height)
   }
 
-  // Clears the drawn line
+  // Clears the drawn line and scales
+  // Basically resets the canvas
   function clearChart() {
     let ctx = canvasInstance
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
     drawAxis(ctx, ctx.canvas.width, ctx.canvas.height)
+    drawAnimatedScales(ctx, ctx.canvas.width, ctx.canvas.height, 0)
+
+    // Reset scales
+    xScales = []
+    yScales = []
   }
 
   // Stops the animation
@@ -69,11 +87,14 @@ function Graph() {
     const ctx = canvas.getContext('2d')
     setCanvasInstance(ctx)
 
+    // Draw axis and scales
     drawAxis(ctx, canvas.width, canvas.height)
+    drawAnimatedScales(ctx, canvas.width, canvas.height, 0)
   }, [])
 
   /**
    * Animates bezier-curve
+   * Avoid modifying this function
    *
    * @param ctx       The canvas context to draw to
    * @param x0        The x-coord of the start point
@@ -97,15 +118,15 @@ function Graph() {
       // Clear canvas
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
       drawAxis(ctx, ctx.canvas.width, ctx.canvas.height)
-      drawScales(ctx, ctx.canvas.width, ctx.canvas.height, progress)
+      drawAnimatedScales(ctx, ctx.canvas.width, ctx.canvas.height, progress)
 
       // Draw curve
       drawBezierSplit(ctx, x0, y0, x1, y1, x2, y2, 0, progress)
 
-      if (progress < 1) {
-        reqId = requestAnimationFrame(step)
-        setRequestId(() => reqId)
-      }
+      // if (progress < 1) {
+      reqId = requestAnimationFrame(step)
+      setRequestId(() => reqId)
+      // }
     }
 
     requestAnimationFrame(step)
@@ -141,6 +162,7 @@ export default Graph
 
 /**
  * Draws a splitted bezier-curve
+ * Don't modify this function except for the color and width of the line
  *
  * @param ctx       The canvas context to draw to
  * @param x0        The x-coord of the start point
@@ -182,8 +204,10 @@ function drawBezierSplit(ctx, x0, y0, x1, y1, x2, y2, t0, t1) {
     ctx.quadraticCurveTo(nx1, ny1, nx2, ny2)
   }
 
+  // You can modify this part to change color and width of the line
   ctx.strokeStyle = 'green'
   ctx.lineWidth = 5
+
   ctx.stroke()
   ctx.closePath()
 }
@@ -195,73 +219,146 @@ function lerp(v0, v1, t) {
   return (1.0 - t) * v0 + t * v1
 }
 
-// Draw x and Y axis
+// Draw x and Y axis lines
 function drawAxis(ctx, width, height) {
   //Draw x axis
   ctx.beginPath()
-  ctx.moveTo(width * 0.038, height * 0.94)
-  ctx.lineTo(width * 0.98, height * 0.94)
-  ctx.strokeStyle = 'gray'
+  ctx.moveTo(width * 0.038, height * 0.94) // Start coordinates of line
+  ctx.lineTo(width, height * 0.94) // End coordinates of line
+  ctx.strokeStyle = 'black'
   ctx.lineWidth = 5
   ctx.stroke()
 
   // Draw y axis
   ctx.beginPath()
-  ctx.moveTo(width * 0.04, height * 0.02)
-  ctx.lineTo(width * 0.04, height * 0.944)
-  ctx.strokeStyle = 'gray'
-  ctx.lineWidth = 4
+  ctx.moveTo(width * 0.04, 0) // Start coordinates of line
+  ctx.lineTo(width * 0.04, height * 0.944) // End coordinates of line
+  ctx.strokeStyle = 'black'
+  ctx.lineWidth = 3
   ctx.stroke()
 }
 
-function drawScales(ctx, width, height, progress) {
-  for (let i = 0; i < 10; i++) {
-    drawXscale(
-      ctx,
-      i + 1,
-      width * 0.1 + ((width * 0.9) / 10) * i,
-      height * 0.94,
-      width * 0.1 + ((width * 0.9) / 10) * i,
-      height * 0.96,
-    )
-    // Draw y axis scale
-    drawYscale(
-      ctx,
-      i + 1,
-      width * 0.025,
-      height * 0.85 - ((height * 0.9) / 10) * i,
-      width * 0.04,
-      height * 0.85 - ((height * 0.9) / 10) * i,
-    )
+// Draw x and y scales that animates when the line is drawn
+function drawAnimatedScales(ctx, width, height, progress) {
+  // Initially xScales and yScales arrays are empty
+  // So we need to add the initial values for the initial scale values
+  if (xScales.length === 0 || yScales.length === 0) {
+    for (let i = 0; i < 10; i++) {
+      xScales.push({
+        ctx,
+        label: i + 1,
+        xStart: width * 0.1 + ((width * 0.9) / 10) * i,
+        yStart: height * 0.92,
+        xEnd: width * 0.1 + ((width * 0.9) / 10) * i,
+        yEnd: height * 0.94,
+      })
+      // Draw y axis scale
+      yScales.push({
+        ctx,
+        label: i + 1,
+        xStart: width * 0.04,
+        yStart: height * 0.85 - ((height * 0.9) / 10) * i,
+        xEnd: width * 0.05,
+        yEnd: height * 0.85 - ((height * 0.9) / 10) * i,
+      })
+    }
   }
+
+  // When the line is drawn 90% then start animating the scales
+  // We animate them by modifying the coordinates of the scales
+  if (progress >= 0.9) {
+    xScales.forEach((scale) => {
+      if (scale.xStart >= width * 0.1) {
+        // Move x axis scale     Increase to incresase speed
+        scale.xStart = scale.xStart - 1.5
+        scale.xEnd = scale.xEnd - 1.5
+      } else {
+        xScales.push({
+          ctx,
+          label: xScales[xScales.length - 1].label + 1,
+          xStart: width * 0.1 + ((width * 0.9) / 10) * 10,
+          yStart: height * 0.92,
+          xEnd: width * 0.1 + ((width * 0.9) / 10) * 10,
+          yEnd: height * 0.94,
+        })
+        xScales.shift()
+      }
+    })
+
+    yScales.forEach((scale) => {
+      if (scale.yStart <= height * 0.85) {
+        // Move y axis scale    Increase to incresase speed
+        scale.yStart = scale.yStart + 0.5
+        scale.yEnd = scale.yEnd + 0.5
+      } else {
+        yScales.push({
+          ctx,
+          label: yScales[yScales.length - 1].label + 1,
+          xStart: width * 0.04,
+          yStart: height * 0.85 - ((height * 0.9) / 10) * 10,
+          xEnd: width * 0.05,
+          yEnd: height * 0.85 - ((height * 0.9) / 10) * 10,
+        })
+        yScales.shift()
+      }
+    })
+  }
+
+  drawEachScale(xScales, yScales, progress)
 }
 
+// Draws all x and y scales on the canvas
+function drawEachScale(xScales, yScales, progress) {
+  xScales.forEach((scale) => {
+    drawXscale(
+      scale.ctx,
+      scale.label,
+      scale.xStart,
+      scale.yStart,
+      scale.xEnd,
+      scale.yEnd,
+    )
+  })
+  yScales.forEach((scale) => {
+    drawYscale(
+      scale.ctx,
+      scale.label,
+      scale.xStart,
+      scale.yStart,
+      scale.xEnd,
+      scale.yEnd,
+    )
+  })
+}
+
+// Draws a single mark on x axis
 function drawXscale(ctx, label, xStart, yStart, xEnd, yEnd) {
   ctx.beginPath()
   ctx.moveTo(xStart, yStart)
   ctx.lineTo(xEnd, yEnd)
-  ctx.strokeStyle = 'gray'
-  ctx.lineWidth = 5
+  ctx.strokeStyle = 'black'
+  ctx.lineWidth = 2
   ctx.stroke()
 
-  ctx.font = '20px Arial'
+  ctx.font = '18px Arial'
   ctx.fillStyle = 'black'
 
   //Uncomment to get scale label
-  //ctx.fillText(label, xStart - 5, yStart + 30)
+  // ctx.fillText(label, xStart - 5, yStart + 30)
 }
 
+// Draws a single mark on y axis
 function drawYscale(ctx, label, xStart, yStart, xEnd, yEnd) {
   ctx.beginPath()
   ctx.moveTo(xStart, yStart)
   ctx.lineTo(xEnd, yEnd)
-  ctx.strokeStyle = 'gray'
-  ctx.lineWidth = 5
+  ctx.strokeStyle = 'black'
+  ctx.lineWidth = 2
   ctx.stroke()
 
-  ctx.font = '20px Arial'
+  ctx.font = '18px Arial'
   ctx.fillStyle = 'black'
 
   //Uncomment to get scale label
-  //ctx.fillText(label, xStart - 20, yStart + 5)
+  ctx.fillText(label, xStart - 30, yStart + 5)
 }
