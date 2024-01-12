@@ -4,7 +4,7 @@ const style = {
   canvas: {
     width: '80vw',
     height: '60vh',
-   // borderRadius: '8px',
+    // borderRadius: '8px',
     //boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.2)',
   },
   container: {
@@ -46,7 +46,13 @@ function Graph() {
   const [canvasInstance, setCanvasInstance] = useState(null)
   const [requestId, setRequestId] = useState(null)
 
+  // Triggers line drawing animation
   function createChart() {
+    // Stop the animation if it is running
+    if (requestId) {
+      cancelAnimationFrame(requestId)
+      setRequestId(null)
+    }
     let ctx = canvasInstance
 
     //  Params         ctx, (start),(control), (end pnt) , duration
@@ -65,19 +71,27 @@ function Graph() {
   // Clears the drawn line and scales
   // Basically resets the canvas
   function clearChart() {
+    // Reset scales
+    xScales = []
+    yScales = []
+
+    // Stop the animation if it is running
+    if (requestId) {
+      cancelAnimationFrame(requestId)
+      setRequestId(null)
+    }
+
     let ctx = canvasInstance
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
     drawAxis(ctx, ctx.canvas.width, ctx.canvas.height)
     drawAnimatedScales(ctx, ctx.canvas.width, ctx.canvas.height, 0)
-
-    // Reset scales
-    xScales = []
-    yScales = []
   }
 
-  // Stops the animation
+  // Stops the animation half way
   function stopAnimation() {
+    if (!requestId) return
     cancelAnimationFrame(requestId)
+    setRequestId(null)
   }
 
   useEffect(() => {
