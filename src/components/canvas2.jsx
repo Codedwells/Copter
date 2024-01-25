@@ -57,7 +57,7 @@ function Graph() {
 
     //  Params         ctx, (start),(control), (end pnt) , duration
     //  Params         ctx, x0,|y0| , x1 , y1 , x2 ,|y2|, duration
-    animatePathDrawing(ctx, 39, 600, 600, 600, 800, 60, 10000)
+    animatePathDrawing(ctx, 39, 600, 600, 600, 800, 60, 5000)
 
     // Reset scales
     xScales = []
@@ -248,7 +248,7 @@ function drawAxis(ctx, width, height) {
   ctx.moveTo(width * 0.04, 0) // Start coordinates of line
   ctx.lineTo(width * 0.04, height * 0.944) // End coordinates of line
   ctx.strokeStyle = 'black'
-  ctx.lineWidth = 3
+  ctx.lineWidth = 5
   ctx.stroke()
 }
 
@@ -284,8 +284,8 @@ function drawAnimatedScales(ctx, width, height, progress) {
     xScales.forEach((scale) => {
       if (scale.xStart >= width * 0.1) {
         // Move x axis scale     Increase to incresase speed
-        scale.xStart = scale.xStart - 1.5
-        scale.xEnd = scale.xEnd - 1.5
+        scale.xStart = scale.xStart - 2
+        scale.xEnd = scale.xEnd - 2
       } else {
         xScales.push({
           ctx,
@@ -358,7 +358,7 @@ function drawXscale(ctx, label, xStart, yStart, xEnd, yEnd) {
   ctx.fillStyle = 'black'
 
   //Uncomment to get scale label
-  // ctx.fillText(label, xStart - 5, yStart + 30)
+   ctx.fillText(label, xStart - 5, yStart + 38)
 }
 
 // Draws a single mark on y axis

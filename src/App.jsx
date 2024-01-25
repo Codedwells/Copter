@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import Copter from './components/canvas'
 import Graph from './components/canvas2'
 
@@ -21,7 +20,6 @@ const styles = {
 }
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <main className='App' style={styles.app}>

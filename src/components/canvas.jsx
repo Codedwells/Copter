@@ -182,7 +182,7 @@ class Canvas {
 
     if(startY > this.height){
        // startY = startY - 400
-      startY = (this.height / 10) *(this.animationProgress)
+      //startY = (this.height / 10) *(this.animationProgress)
     console.log("Went out of bounds")
     }
 
